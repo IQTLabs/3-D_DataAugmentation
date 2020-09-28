@@ -1,8 +1,43 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torchvision import transforms
+
+from .config import args
+
+__all__ = ['AverageMeter', 'createOptim', 'make_fig']
 
 
-__all__ = ['AverageMeter', 'createOptim']
+inv_normalize = transforms.Normalize(
+    mean=[-args['norm_mean'][x]/args['norm_std'][x] for x in range(3)],
+    std=[1./args['norm_std'][x] for x in range(3)]
+)
+
+
+def prepare_image(img):
+    view_img = img
+    view_img = torch.clamp(inv_normalize(view_img), 0, 1)
+    view_img = np.array(view_img)
+    view_img = np.moveaxis(view_img, 0, -1)
+    return view_img
+
+
+def make_fig(in_frame, target, pred, fname):
+    fig = plt.figure(figsize=(10, 3))
+    plt.subplot(1, 3, 1)
+    img = prepare_image(in_frame.cpu())
+    plt.imshow(img)
+    plt.subplot(1, 3, 2)
+    img = prepare_image(target.cpu())
+    plt.imshow(img)
+    plt.subplot(1, 3, 3)
+    img = prepare_image(pred.cpu())
+    plt.imshow(img)
+    plt.savefig(fname)
+    plt.close()
 
 
 class AverageMeter(object):

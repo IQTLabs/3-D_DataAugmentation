@@ -1,43 +1,12 @@
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-import numpy as np
 from pathlib import Path
 
 import torch
-from torchvision import transforms
 
 from .utils import *
 
 __all__ = ['train_p2p']
-
-
-inv_normalize = transforms.Normalize(
-    mean=[-0.485/0.229, -0.456/0.224, -0.406/0.255],
-    std=[1/0.229, 1/0.224, 1/0.255]
-)
-
-
-def prepare_image(img):
-    view_img = img
-    view_img = torch.clamp(inv_normalize(view_img), 0, 1)
-    view_img = np.array(view_img)
-    view_img = np.moveaxis(view_img, 0, -1)
-    return view_img
-
-
-def make_fig(in_frame, target, pred, fname):
-    fig = plt.figure(figsize=(10, 3))
-    plt.subplot(1, 3, 1)
-    img = prepare_image(in_frame.cpu())
-    plt.imshow(img)
-    plt.subplot(1, 3, 2)
-    img = prepare_image(target.cpu())
-    plt.imshow(img)
-    plt.subplot(1, 3, 3)
-    img = prepare_image(pred.cpu())
-    plt.imshow(img)
-    plt.savefig(fname)
-    plt.close()
 
 
 def save_checkpoint(generator, filename='checkpoint.pth.tar'):
