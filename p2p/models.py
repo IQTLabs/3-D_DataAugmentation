@@ -108,7 +108,7 @@ class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
         self.model = models.resnet18(pretrained=False)
-        self.fc = nn.Sequential(
+        self.model.fc = nn.Sequential(
             nn.Linear(in_features=512, out_features=256, bias=True),
             nn.LeakyReLU(inplace=True),
             nn.Dropout(p=0.5),
@@ -116,6 +116,4 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, x):
-        x = self.features(x)
-        x = x.view(x.shape[0], -1)
-        return self.classifier(x)
+        return self.model(x)
