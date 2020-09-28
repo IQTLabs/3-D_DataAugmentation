@@ -107,13 +107,12 @@ class VoxFaceID(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-        model = models.vgg16(pretrained=False)
-        self.features = model.features
-        self.classifier = nn.Sequential(
-            nn.Linear(in_features=25088, out_features=4096, bias=True),
-            nn.ReLU(inplace=True),
+        self.model = models.resnet18(pretrained=False)
+        self.fc = nn.Sequential(
+            nn.Linear(in_features=512, out_features=256, bias=True),
+            nn.LeakyReLU(inplace=True),
             nn.Dropout(p=0.5),
-            nn.Linear(in_features=4096, out_features=1, bias=True)
+            nn.Linear(in_features=256, out_features=1, bias=True)
         )
 
     def forward(self, x):
