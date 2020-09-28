@@ -18,12 +18,12 @@ if __name__ == '__main__':
     train = p2p_df[p2p_df['set'] == 'train']
     test = p2p_df[p2p_df['set'] == 'test']
     #
-    imagenet_norm = {'mean': [0.485, 0.456, 0.406],
-                     'std': [0.229, 0.224, 0.225]}
+    # imagenet_norm = {'mean': [0.485, 0.456, 0.406],
+    #                 'std': [0.229, 0.224, 0.225]}
     frame_transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(mean=imagenet_norm['mean'],
-                             std=imagenet_norm['std'])
+        transforms.Normalize(mean=args['norm_mean'],
+                             std=args['norm_std'])
     ])
     data_path = '{}/{}'.format(root_dir, args['data_dir'])
     trainset = p2p.P2PDataset(
