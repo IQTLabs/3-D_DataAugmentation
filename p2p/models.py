@@ -1,8 +1,10 @@
+import numpy as np
+
 import torch
 import torch.nn as nn
 from torchvision import models
 
-__all__ = ['GlobalGenerator', 'VoxFaceID']
+__all__ = ['GlobalGenerator', 'VoxFaceID', 'Discriminator']
 
 # Define a resnet block
 
@@ -100,3 +102,21 @@ class VoxFaceID(nn.Module):
 
     def forward(self, x):
         return self.features(x)
+
+
+class Discriminator(nn.Module):
+    def __init__(self):
+        super(Discriminator, self).__init__()
+        model = models.vgg16(pretrained=False)
+        self.features = model.features
+        self.classifier = nn.Sequential(
+            nn.Linear(in_features=25088, out_features=4096, bias=True),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5),
+            nn.Linear(in_features=4096, out_features=1, bias=True)
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = x.view(x.shape[0], -1)
+        return self.classifier(x)
