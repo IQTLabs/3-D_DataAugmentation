@@ -7,6 +7,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchvision import transforms
 
 from .config import args
+from .models import Vgg19
 
 __all__ = ['AverageMeter', 'createOptim', 'make_fig']
 
@@ -113,3 +114,19 @@ def createOptim(parameters, lr=0.001, betas=(0.5, 0.999), weight_decay=0,
         optimizer, mode='min', factor=0.2, patience=patience,
         threshold=threshold, eps=eps, verbose=True)
     return optimizer, scheduler
+
+
+class VGGLoss(torch.nn.Module):
+    def __init__(self, gpu_ids, device):
+        super(VGGLoss, self).__init__()
+        self.vgg = models.vgg19(pretrained=True).to(device)
+        self.criterion = torch.nn.L1Loss()
+        self.weights = [1.0/32, 1.0/16, 1.0/8, 1.0/4, 1.0]
+
+    def forward(self, x, y):
+        x_vgg, y_vgg = self.vgg(x), self.vgg(y)
+        loss = 0
+        for i in range(len(x_vgg)):
+            loss += self.weights[i] * \
+                self.criterion(x_vgg[i], y_vgg[i].detach())
+        return loss
