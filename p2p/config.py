@@ -15,5 +15,6 @@ args['lr'] = 0.001
 args['batch_size'] = 64
 args['n_workers'] = 64
 args['gpu'] = [0]
-args['face_id'] = True
+args['face_id'] = False
 args['GAN_weight'] = 0.25
+args['loss'] = 'VGGLoss'

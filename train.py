@@ -9,6 +9,8 @@ import p2p
 from p2p.config import args
 from p2p.utils import createOptim
 
+losses = ['MSE', 'VGGLoss']
+
 if __name__ == '__main__':
     #
     root_dir = args['root_dir']
@@ -50,10 +52,15 @@ if __name__ == '__main__':
         if args['face_id']:
             faceid = nn.DataParallel(
                 faceid, device_ids=device_ids).to(device_ids[0])
+    assert args['loss'] in losses, 'Missing loss implementation'
+    if args['loss'] == 'MSE':
+        loss = nn.MSELoss()
+    elif args['loss'] == 'VGGLoss':
+        loss = p2p.VGGLoss(device_ids[0])
 
     parameters = list(netG.parameters())
     optimizer, scheduler = createOptim(parameters=parameters, lr=0.001)
     p2p.train_p2p(generator=netG, faceid=faceid, trainloader=trainloader,
                   testloader=testloader, optim=optimizer, scheduler=scheduler,
-                  criterion=nn.MSELoss(), n_epochs=args['n_epochs'],
+                  criterion=loss, n_epochs=args['n_epochs'],
                   e_saves=args['e_saves'], save_path=log_dir, device_ids=device_ids)
