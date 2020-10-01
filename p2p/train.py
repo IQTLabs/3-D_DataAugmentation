@@ -127,7 +127,7 @@ def train_p2p(generator=None, faceid=None, trainloader=None, testloader=None,
                             '{}/sammple_{}.jpg'.format(log_path, epoch), device_ids)
         if (epoch+1) % e_saves == 0:
             save_checkpoint(
-                generator, '{}/checkpoint_{}.pth.tar'.format(chpt_path, epoch))
+                generator.state_dict(), '{}/checkpoint_{}.pth.tar'.format(chpt_path, epoch))
         avg_train.append(meter.avg)
         avg_val.append(val_loss)
         print('Training loss {} Val loss {}'.format(meter.avg, val_loss))
