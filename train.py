@@ -47,8 +47,9 @@ if __name__ == '__main__':
     if len(args['gpu']) > 1:
         print('Data Parallel on {}'.format(args['gpu']))
         netG = nn.DataParallel(netG, device_ids=device_ids).to(device_ids[0])
-        faceid = nn.DataParallel(
-            faceid, device_ids=device_ids).to(device_ids[0])
+        if args['face_id']:
+            faceid = nn.DataParallel(
+                faceid, device_ids=device_ids).to(device_ids[0])
 
     parameters = list(netG.parameters())
     optimizer, scheduler = createOptim(parameters=parameters, lr=0.001)
