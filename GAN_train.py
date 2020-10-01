@@ -29,7 +29,7 @@ if __name__ == '__main__':
     trainset = p2p.P2PDataset(
         df=train, transform=frame_transform, data_path=data_path)
     trainloader = DataLoader(trainset, batch_size=args['batch_size'],
-                             shuffle=True, num_workers=args['batch_size'])
+                             shuffle=True, num_workers=args['n_workers'])
     testset = p2p.P2PDataset(
         df=test, transform=frame_transform, data_path=data_path)
     testloader = DataLoader(testset, batch_size=args['batch_size'],
@@ -50,5 +50,6 @@ if __name__ == '__main__':
     p2p.GAN_train_p2p(generator=netG, discriminator=netD, trainloader=trainloader,
                       testloader=testloader, g_opt=g_opt, g_sched=g_sched,
                       g_criterion=nn.MSELoss(), d_opt=d_opt, d_sched=d_sched,
-                      d_criterion=nn.BCEWithLogitsLoss(), n_epochs=args['n_epochs'],
-                      e_saves=args['e_saves'], save_path=log_dir, device_ids=device_ids)
+                      d_criterion=nn.BCEWithLogitsLoss(), GAN_weight=args['GAN_weight'],
+                      n_epochs=args['n_epochs'], e_saves=args['e_saves'],
+                      save_path=log_dir, device_ids=device_ids)
