@@ -119,7 +119,7 @@ def GAN_test_p2p(generator=None, discriminator=None, testloader=None,
 def GAN_train_p2p(generator=None, discriminator=None, trainloader=None,
                   testloader=None, g_opt=None, g_sched=None, g_criterion=None,
                   d_opt=None, d_sched=None, d_criterion=None, n_epochs=0,
-                  e_saves=10, save_path='',  device_ids=[],
+                  GAN_weight=0., e_saves=10, save_path='',  device_ids=[],
                   verbose=False):
     """ Training routing for deep fake detector
     Parameters
@@ -187,7 +187,7 @@ def GAN_train_p2p(generator=None, discriminator=None, trainloader=None,
             #
             pred_fake = discriminator(preds)
             g_loss = g_criterion(preds, frame1) + \
-                d_criterion(pred_fake, dis_true_label)
+                GAN_weight*d_criterion(pred_fake, dis_true_label)
             g_loss.backward()
             g_opt.step()
             g_meter.update(g_loss.item(), frame0.shape[0])

@@ -1,7 +1,7 @@
 args = dict()
 
 # Project
-args['root_dir'] = '/home/mlomnitz/Pose2Pose'
+args['root_dir'] = '/home/mlomnitz/Documents/Projects/pose2pose'
 args['log_dir'] = 'checkpoints'
 # Data
 args['data_dir'] = 'data/p2p'
@@ -11,8 +11,9 @@ args['norm_std'] = [0.5, 0.5, 0.5]
 # Training
 args['n_epochs'] = 50
 args['e_saves'] = 5
-args['lr'] = 0.0005
-args['batch_size'] = 96
-args['n_workers'] = 32
-args['gpu'] = [1, 2, 3]
+args['lr'] = 0.001
+args['batch_size'] = 64
+args['n_workers'] = 64
+args['gpu'] = [0]
 args['face_id'] = True
+args['GAN_weight'] = 0.25
