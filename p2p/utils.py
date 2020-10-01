@@ -9,7 +9,7 @@ from torchvision import transforms
 from .config import args
 from .models import Vgg19
 
-__all__ = ['AverageMeter', 'createOptim', 'make_fig']
+__all__ = ['AverageMeter', 'createOptim', 'make_fig', 'VGGLoss']
 
 
 inv_normalize = transforms.Normalize(
@@ -117,9 +117,9 @@ def createOptim(parameters, lr=0.001, betas=(0.5, 0.999), weight_decay=0,
 
 
 class VGGLoss(torch.nn.Module):
-    def __init__(self, gpu_ids, device):
+    def __init__(self, device):
         super(VGGLoss, self).__init__()
-        self.vgg = models.vgg19(pretrained=True).to(device)
+        self.vgg = Vgg19().to(device)
         self.criterion = torch.nn.L1Loss()
         self.weights = [1.0/32, 1.0/16, 1.0/8, 1.0/4, 1.0]
 
