@@ -78,7 +78,7 @@ def train_p2p(generator=None, faceid=None, trainloader=None, testloader=None,
               verbose=False):
     """ Training routing for deep fake detector
     Parameters
-   ----------
+    ----------
     generator : nn.Module
         pose2pose generator model
     face_id : nn.Module
