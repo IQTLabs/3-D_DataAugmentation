@@ -31,6 +31,24 @@ def save_checkpoint(generator, filename='checkpoint.pth.tar'):
 
 def test_p2p(generator=None, testloader=None, criterion=None, fname='',
              device_ids=[]):
+    """ Test generator performance on validation set
+    Parameters
+    ----------
+    generator : nn.Module
+        pose2pose generator
+    testloader : torch.data.utils.DataLoader
+        Datalaoder for test or validation set
+    criterion : nn.Module
+        Loss to be used in evaluation
+    fname : str
+        Output file name to visualize image performance
+    device_ids : list(int)
+        Device ids for processing
+    Returns
+    -------
+    avg_loss : float
+        Average loss over test set    
+     """
     generator.to(device_ids[0])
     generator.eval()
     avg_loss = 0
@@ -61,22 +79,26 @@ def train_p2p(generator=None, faceid=None, trainloader=None, testloader=None,
     """ Training routing for deep fake detector
     Parameters
    ----------
-    model : torch.Module
-        Deep fake detector model
-    dataloader : torch.utils.data.DataLoader
-        Training dataset
+    generator : nn.Module
+        pose2pose generator model
+    face_id : nn.Module
+        Optional face id model for loss
+    trainloader : torch.utils.data.DataLoader
+        Training dataset loader
+    testloader : torch.utils.data.DataLoader
+        Validation dataset loader
     optim : torch.optim
         Optimizer for pytorch model
     scheduler : torch.optim.lr_scheduler
         Optional learning rate scheduler for the optimizer
     criterion : torch.nn.Module
-        Objective function for optimization
-    losses : list
-        List to hold the lossses over each mini-batch
-    averages : list
-        List to hold the average loss over each epoch
+        Objective function for optimization  
     n_epochs : int
         Number of epochs for training
+    e_saves : int
+        Frequency of model checkpointing
+    save_path : str
+        Global path to save logs and checkpoints
     device_ids[0] : str
         Device_Ids[0] to run training procedure
     verbose : bool

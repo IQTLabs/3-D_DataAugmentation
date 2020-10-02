@@ -19,6 +19,16 @@ inv_normalize = transforms.Normalize(
 
 
 def prepare_image(img):
+    """ Prepres image for plotting
+    Parameters
+    ----------
+    img : torch.tensor
+        Image to prepare for plotting size=(3, H, W)
+    Returns
+    -------
+    view_img : np.array
+        Array with image ready for pyplot size (H, W, 3)
+    """
     view_img = img
     view_img = torch.clamp(inv_normalize(view_img), 0, 1)
     view_img = np.array(view_img)
@@ -27,6 +37,20 @@ def prepare_image(img):
 
 
 def make_fig(in_frame, target, pred, fname):
+    """ Make figure to visualize performance
+    Parameters
+    ----------
+    in_frame : torch.tensor
+        Input frame tensor
+    target : torch.tensor
+        Target (real) frame
+    pred : torch.tensor
+        Predicted target frame
+    fname : str
+        Output file name
+    Results
+    -------
+    """
     fig = plt.figure(figsize=(10, 3))
     plt.subplot(1, 3, 1)
     img = prepare_image(in_frame.cpu())
@@ -117,7 +141,19 @@ def createOptim(parameters, lr=0.001, betas=(0.5, 0.999), weight_decay=0,
 
 
 class VGGLoss(torch.nn.Module):
+    """  VGG or Perceptual loss. Matches target and predition features
+    extracted from pretrained (ImageNet) VGG19
+    """
+
     def __init__(self, device):
+        """ Loss module initializaiton
+        Parameters
+        ----------
+        device : torch.device
+            Device to run trianing/inference
+        Returns
+        -------
+        """
         super(VGGLoss, self).__init__()
         self.vgg = Vgg19().to(device)
         self.criterion = torch.nn.L1Loss()
@@ -137,10 +173,32 @@ class VGGLoss(torch.nn.Module):
         self.std = self.std.view(-1, 1, 1)
 
     def renormalize(self, tensor):
+        """ Generator to ImageNet normalization
+        Parameters
+        ----------
+        tensor : torch.tensor
+            Image tensor to renormalize to accomodate ImageNet norm   
+        Returns
+         -------
+        new_tensor : torch.tensor
+            Renormalized image tensor
+        """
         new_tensor = (tensor-self.inv_mean)/self.inv_std
         return (new_tensor-self.mean)/self.std
 
     def forward(self, x, y):
+        """ Forward pass
+        Parameters
+        ----------
+        x : torch tensor
+            Predicted image tensor
+        y : tensor
+            Target image tensor
+        Returns
+         -------
+        loss : torch.tensor
+            Batch loss
+        """
         x = self.renormalize(x)
         y = self.renormalize(y)
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
