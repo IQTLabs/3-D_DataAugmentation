@@ -122,8 +122,27 @@ class VGGLoss(torch.nn.Module):
         self.vgg = Vgg19().to(device)
         self.criterion = torch.nn.L1Loss()
         self.weights = [1.0/32, 1.0/16, 1.0/8, 1.0/4, 1.0]
+        # undoing generator norm
+        self.inv_mean = torch.tensor(
+            [-args['norm_mean'][x]/args['norm_std'][x] for x in range(3)]).to(device)
+        self.inv_mean = self.inv_mean.view(-1, 1, 1)
+
+        self.inv_std = torch.tensor(
+            [1./args['norm_std'][x] for x in range(3)]).to(device)
+        self.inv_std = self.inv_std.view(-1, 1, 1)
+        # imagenet norm
+        self.mean = torch.tensor([0.485, 0.456, 0.406]).to(device)
+        self.mean = self.mean.view(-1, 1, 1)
+        self.std = torch.tensor([0.229, 0.224, 0.225]).to(device)
+        self.std = self.std.view(-1, 1, 1)
+
+    def renormalize(self, tensor):
+        new_tensor = (tensor-self.inv_mean)/self.inv_std
+        return (new_tensor-self.mean)/self.std
 
     def forward(self, x, y):
+        x = self.renormalize(x)
+        y = self.renormalize(y)
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
         loss = 0
         for i in range(len(x_vgg)):
