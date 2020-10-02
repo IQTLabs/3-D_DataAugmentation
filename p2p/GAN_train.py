@@ -11,21 +11,23 @@ from .utils import *
 __all__ = ['GAN_train_p2p']
 
 
-inv_normalize = transforms.Normalize(
-    mean=[-0.485/0.229, -0.456/0.224, -0.406/0.255],
-    std=[1/0.229, 1/0.224, 1/0.255]
-)
-
-
-def prepare_image(img):
-    view_img = img
-    view_img = torch.clamp(inv_normalize(view_img), 0, 1)
-    view_img = np.array(view_img)
-    view_img = np.moveaxis(view_img, 0, -1)
-    return view_img
-
-
 def make_loss_fig(g_train, g_val, d_train, d_val, fname):
+    """ Makes GAN specific loss plots during training
+    Parameters
+    ----------
+    g_train : list(float)
+        List of average generator training loss
+    g_val : list(float)
+        List of average generator validation loss
+    d_train : list(float)
+        List of average discriminator training loss
+    d_val : list(float)
+        List of average discriminator validation loss
+    fname : str
+        Output file name
+    Returns
+    -------
+    """
     fig = plt.figure(figsize=(7, 3))
     plt.subplot(1, 2, 1)
     plt.plot(g_train, label='Train loss')
@@ -41,30 +43,14 @@ def make_loss_fig(g_train, g_val, d_train, d_val, fname):
     plt.close()
 
 
-def make_fig(in_frame, target, pred, fname):
-    fig = plt.figure(figsize=(10, 3))
-    plt.subplot(1, 3, 1)
-    img = prepare_image(in_frame.cpu())
-    plt.imshow(img)
-    plt.subplot(1, 3, 2)
-    img = prepare_image(target.cpu())
-    plt.imshow(img)
-    plt.subplot(1, 3, 3)
-    img = prepare_image(pred.cpu())
-    plt.imshow(img)
-    plt.savefig(fname)
-    plt.close()
-
-
 def save_checkpoint(generator, discriminator, filename='checkpoint.pth.tar'):
     """ Saves input state dict to file
     Parameters
     ----------
-    state : dict
-        State dict to save. Can include parameters from model, optimizer, etc.
-        as well as any other elements.
-    is_best : bool
-        If true will save current state dict to a second location
+    generator : dict
+        Generator state dict to save
+    discriminator : dict
+        Discriminator state dict to save
     filename : str
         File name for save
     Returns
@@ -80,6 +66,30 @@ def save_checkpoint(generator, discriminator, filename='checkpoint.pth.tar'):
 def GAN_test_p2p(generator=None, discriminator=None, testloader=None,
                  g_criterion=None, d_criterion=None, fname='',
                  device_ids=[]):
+    """ GAN Test generator performance on validation set
+    Parameters
+    ----------
+    generator : nn.Module
+        pose2pose generator
+    discriminator  : nn.Module
+        pose2pose discriminator
+    testloader : torch.data.utils.DataLoader
+        Datalaoder for test or validation set
+    g_criterion : nn.Module
+        Loss to be used in evaluation of generator output
+    d_criterion : nn.Module
+        Loss to be used in evaluation of discriminator
+    fname : str
+        Output file name to visualize image performance
+    device_ids : list(int)
+        Device ids for processing
+    Returns
+    -------
+    g_avg_loss : float
+        Generator average loss over test set
+    d_avg_loss : float
+        Discriminator average loss over test set
+     """
     generator.to(device_ids[0])
     discriminator.to(device_ids[0])
     generator.eval()
@@ -123,23 +133,35 @@ def GAN_train_p2p(generator=None, discriminator=None, trainloader=None,
                   verbose=False):
     """ Training routing for deep fake detector
     Parameters
-   ----------
-    model : torch.Module
-        Deep fake detector model
-    dataloader : torch.utils.data.DataLoader
-        Training dataset
-    optim : torch.optim
-        Optimizer for pytorch model
-    scheduler : torch.optim.lr_scheduler
-        Optional learning rate scheduler for the optimizer
-    criterion : torch.nn.Module
-        Objective function for optimization
-    losses : list
-        List to hold the lossses over each mini-batch
-    averages : list
-        List to hold the average loss over each epoch
+    ----------
+    generator : nn.Module
+        pose2pose generator model
+    discriminator : nn.Module
+        pose2pose discriminator model
+    trainloader : torch.utils.data.DataLoader
+        Training dataset loader
+    testloader : torch.utils.data.DataLoader
+        Validation dataset loader
+    g_opt : torch.optim
+        Optimizer for pose2pose generator
+    g_sched : torch.optim.lr_scheduler
+        Optional learning rate scheduler for g_opt
+    g_criterion : torch.nn.Module
+        Objective function for generator optimization
+    d_opt : torch.optim
+        Optimizer for pose2pose discriminator
+    d_sched : torch.optim.lr_scheduler
+        Optional learning rate scheduler for d_opt
+    d_criterion : torch.nn.Module
+        Objective function for discriminator optimization
     n_epochs : int
         Number of epochs for training
+    GAN_weight : float
+        Weight for GAN loss in generator optmization
+    e_saves : int
+        Frequency of model checkpointing
+    save_path : str
+        Global path to save logs and checkpoints
     device_ids[0] : str
         Device_Ids[0] to run training procedure
     verbose : bool
