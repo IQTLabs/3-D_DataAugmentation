@@ -53,10 +53,11 @@ if __name__ == '__main__':
             faceid = nn.DataParallel(
                 faceid, device_ids=device_ids).to(device_ids[0])
     assert args['loss'] in losses, 'Missing loss implementation'
+
     if args['loss'] == 'MSE':
         loss = nn.MSELoss()
     elif args['loss'] == 'VGGLoss':
-        loss = p2p.VGGLoss(device_ids[0])
+        loss = p2p.VGGLoss(device_ids[0], args['use_mse'])
 
     parameters = list(netG.parameters())
     optimizer, scheduler = createOptim(parameters=parameters, lr=0.001)
