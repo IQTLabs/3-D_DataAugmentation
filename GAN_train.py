@@ -9,6 +9,8 @@ import p2p
 from p2p.config import args
 from p2p.utils import createOptim
 
+losses = ['MSE', 'VGGLoss']
+
 if __name__ == '__main__':
     #
     root_dir = args['root_dir']
@@ -45,11 +47,18 @@ if __name__ == '__main__':
         netG = nn.DataParallel(netG, device_ids=device_ids).to(device_ids[0])
         netD = nn.DataParallel(netD, device_ids=device_ids).to(device_ids[0])
 
+    assert args['loss'] in losses, 'Missing loss implementation'
+
+    if args['loss'] == 'MSE':
+        loss = nn.MSELoss()
+    elif args['loss'] == 'VGGLoss':
+        loss = p2p.VGGLoss(device_ids[0], args['use_mse'])
+        
     g_opt, g_sched = createOptim(parameters=netG.parameters(), lr=0.001)
     d_opt, d_sched = createOptim(parameters=netD.parameters(), lr=0.001)
     p2p.GAN_train_p2p(generator=netG, discriminator=netD, trainloader=trainloader,
                       testloader=testloader, g_opt=g_opt, g_sched=g_sched,
-                      g_criterion=nn.MSELoss(), d_opt=d_opt, d_sched=d_sched,
+                      g_criterion=loss, d_opt=d_opt, d_sched=d_sched,
                       d_criterion=nn.BCEWithLogitsLoss(), GAN_weight=args['GAN_weight'],
                       n_epochs=args['n_epochs'], e_saves=args['e_saves'],
                       save_path=log_dir, device_ids=device_ids)

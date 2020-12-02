@@ -145,7 +145,7 @@ class VGGLoss(torch.nn.Module):
     extracted from pretrained (ImageNet) VGG19
     """
 
-    def __init__(self, device):
+    def __init__(self, device, use_mse=False):
         """ Loss module initializaiton
         Parameters
         ----------
@@ -171,6 +171,7 @@ class VGGLoss(torch.nn.Module):
         self.mean = self.mean.view(-1, 1, 1)
         self.std = torch.tensor([0.229, 0.224, 0.225]).to(device)
         self.std = self.std.view(-1, 1, 1)
+        self.use_mse = use_mse
 
     def renormalize(self, tensor):
         """ Generator to ImageNet normalization
@@ -199,10 +200,12 @@ class VGGLoss(torch.nn.Module):
         loss : torch.tensor
             Batch loss
         """
+        loss = 0
+        if self.use_mse:
+            loss += torch.nn.MSELoss()(x, y)
         x = self.renormalize(x)
         y = self.renormalize(y)
         x_vgg, y_vgg = self.vgg(x), self.vgg(y)
-        loss = 0
         for i in range(len(x_vgg)):
             loss += self.weights[i] * \
                 self.criterion(x_vgg[i], y_vgg[i].detach())
