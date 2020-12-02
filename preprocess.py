@@ -17,13 +17,13 @@ import face_alignment
 
 import p2p
 from p2p.config import args
-
-from mmid.utils import AverageMeter, createOptim, VideoReader
+from p2p.utils import AverageMeter, createOptim
+from p2p.video_reader import VideoReader
 
 device = 'cuda:0'
 out_dir = '{}/{}'.format(args['root_dir'], args['data_dir'])
 video_path = args['video_path']
-
+csv_path = '{}/{}'.format(args['root_dir'], args['meta_data'])
 
 warnings.filterwarnings("ignore")
 
@@ -105,6 +105,5 @@ def predict_on_video_set(df, num_workers=5):
 
 if __name__ == '__main__':
 
-    df = pd.read_csv(
-        '/home/mlomnitz/Documents/Projects/Pose2Pose/snippets_df.csv')
+    df = pd.read_csv(csv_path)
     predict_on_video_set(df)
