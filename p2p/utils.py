@@ -12,6 +12,20 @@ from .models import Vgg19
 __all__ = ['AverageMeter', 'createOptim', 'make_fig', 'VGGLoss']
 
 
+COLORS = [[255, 0, 0], [255, 170, 0], [255, 255, 0], [170, 255, 0], [0, 255, 255],
+          [0, 170, 255], [0, 0, 255], [170, 0, 255], [255, 0, 255]]
+
+pose_joints = {'face': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+               'l_brow': [17, 18, 19, 20, 21],
+               'r_brow': [22, 23, 24, 25, 26],
+               'bridge': [27, 28, 29, 30],
+               'nostrils': [31, 32, 33, 34, 35],
+               'l_eye': [36, 37, 38, 39, 40, 41, 36],
+               'r_eye': [42, 43, 44, 45, 46, 47, 42],
+               'outer_mouth': [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 48],
+               'inner_mouth': [60, 61, 62, 63, 64, 65, 66, 67, 60]}
+
+
 inv_normalize = transforms.Normalize(
     mean=[-args['norm_mean'][x]/args['norm_std'][x] for x in range(3)],
     std=[1./args['norm_std'][x] for x in range(3)]
