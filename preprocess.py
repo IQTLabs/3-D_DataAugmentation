@@ -1,3 +1,4 @@
+import warnings
 import sys
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -14,18 +15,16 @@ import torch
 
 import face_alignment
 
-sys.path.insert(0, '/home/mlomnitz/Documents/Projects/i2ai/')
-sys.path.insert(
-    0, '/home/mlomnitz/Documents/Projects/Pose2Pose/everybody_dance_now_pytorch/models')
-from networks import *
+import p2p
+from p2p.config import args
+
 from mmid.utils import AverageMeter, createOptim, VideoReader
 
 device = 'cuda:0'
-out_dir = '/home/mlomnitz/Documents/Data/p2p'
-video_path = '/home/mlomnitz/Documents/Data/VoxCeleb/video_data/voxceleb2'
+out_dir = '{}/{}'.format(args['root_dir'], args['data_dir'])
+video_path = args['video_path']
 
 
-import warnings
 warnings.filterwarnings("ignore")
 
 
@@ -45,10 +44,6 @@ pose_joints = {'face': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 fan = face_alignment.FaceAlignment(
     face_alignment.LandmarksType._3D, flip_input=False, device=device)
 vr = VideoReader()
-
-parser = parser = argparse.ArgumentParser(description='Batch inference script')
-parser.add_argument('--start', dest='start', type=int, default=0)
-parser.add_argument('--end', dest='end', type=int, default=0)
 
 
 def draw_pose_from_cords(face_preds, img_size, radius=2, draw_joints=True):
@@ -87,6 +82,7 @@ def save_poses(lmk, save_path):
         im = Image.fromarray(colors)
         im.save('{}/pose_{}.jpg'.format(save_path, idx))
 
+
 def predict_on_video_set(df, num_workers=5):
 
     def process_video(i):
@@ -102,15 +98,13 @@ def predict_on_video_set(df, num_workers=5):
         Path(save_path).mkdir(parents=True, exist_ok=True)
         save_frames(frames, save_path)
         save_poses(lmk, save_path)
-   
-    with ThreadPoolExecutor(max_workers=5) as ex:
-        tqdm(ex.map(process_video, range(len(df))), total=len(df)) 
 
+    with ThreadPoolExecutor(max_workers=5) as ex:
+        tqdm(ex.map(process_video, range(len(df))), total=len(df))
 
 
 if __name__ == '__main__':
 
-    args = parser.parse_args()
     df = pd.read_csv(
         '/home/mlomnitz/Documents/Projects/Pose2Pose/snippets_df.csv')
-    predict_on_video_set(df[args.start:args.end])
+    predict_on_video_set(df)
