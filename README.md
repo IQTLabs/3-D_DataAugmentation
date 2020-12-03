@@ -30,7 +30,7 @@ Given an input face, we first extract the face landmarks using [FAN](https://git
   
 The performance of these model, against a real validation dataset, is shown in the following figure, indicating that: a)synthetic images can be used to train models, albeit with some performance loss and b) including our synthetic images to augment data in training can improve a models accuracy.
 
-![img](./training_tests.png)
+![img](./figures/training_tests.png)
 
 
 ## Requirements
