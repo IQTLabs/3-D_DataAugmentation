@@ -23,6 +23,16 @@ As mentioned, the goal of the system is to generate new perspectives of an input
 Given an input face, we first extract the face landmarks using [FAN](https://github.com/1adrianb/face-alignment), and then provide a set of target poses by rotating the images.  The target poses are fed with the original input and used to generate the novel perspectives.
 
 
+  The ultimate goal of our approach was to leverage these novel, synthetic perspectives to augment a dataset during training. To test the feasability we trained three models on the task of identifying the people in the videos using their faces:  
+  - Real: Trained using a single, real image from each video.
+  - Synthetic: Using a single, synthetic analogue image from each video.
+  - Real+Synthetic: Trained using a real and synthetic image from each video, illustrating our data augmentation technique.
+  
+The performance of these model, against a real validation dataset, is shown in the following figure, indicating that: a)synthetic images can be used to train models, albeit with some performance loss and b) including our synthetic images to augment data in training can improve a models accuracy.
+
+![img](../training_tests.png)
+
+
 ## Requirements
 To train, build and run the generator on a given image/landmark pair you will need: 
 
@@ -70,3 +80,9 @@ or
 ```
 python GAN_train.py
 ```
+
+## Inference and tests
+In [notebooks](./notebooks) we have included two noteboooks to illustrate the inference pipeline and a simple study comparing the inter(real vs real) and intra(real vs syntehtic) data distributions.
+
+## Paper
+The details of our approach are included in a journal article that is currently under double-blind review.  This section will be updated with a link to the documentation once the review process is completed.
